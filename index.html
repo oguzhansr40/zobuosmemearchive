@@ -9,11 +9,12 @@
     <style>
         /* --- CSS DEĞİŞKENLERİ (TEMALAR) --- */
         :root {
-            /* Varsayılan (Açık Tema) */
+            /* Varsayılan değerleri buraya yazıyoruz ama JS ile kontrol edip değiştireceğiz.
+               Alttaki [data-theme="dark"] ve normal root ayrımı korunuyor. */
             --bg-color: #f4f4f4;
             --bg-secondary: #ffffff;
             --text-color: #333333;
-            --accent-color: #ff8c00; /* Turuncu tonları */
+            --accent-color: #ff8c00; /* Turuncu tonları (Açık Tema) */
             --accent-hover: #e07b00;
             --border-color: #ddd;
             --card-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -22,7 +23,7 @@
         }
 
         [data-theme="dark"] {
-            /* Koyu Tema */
+            /* Koyu Tema Değişkenleri */
             --bg-color: #121212;
             --bg-secondary: #1e1e1e;
             --text-color: #f0f0f0;
@@ -356,13 +357,7 @@
         }
 
         /* --- RESPONSIVE --- */
-        /* Ekran küçüldüğünde 8 sütun çok sıkışık olacağından scroll edilebilir yapabiliriz 
-           veya promptun kesinliği için min-width vererek yatay scroll oluştururuz. 
-           Ancak kullanıcı deneyimi için çok küçük ekranlarda sütun sayısını düşürmek daha iyidir.
-           Ama talep "En az ve en fazla 8 adet" olduğu için grid'i zorlayacağız. */
-        
         @media (max-width: 1200px) {
-             /* Mobilde 8 sütun okunmaz, bu yüzden fontları küçültüyoruz */
             .card-info { font-size: 0.7rem; }
             .card-menu-btn { width: 20px; height: 20px; font-size: 0.6rem; }
         }
@@ -379,7 +374,7 @@
 
         <div class="header-buttons">
             <button id="theme-btn" class="icon-btn" title="Tema Değiştir">
-                <i class="fa-solid fa-sun" id="theme-icon"></i>
+                <i class="fa-solid fa-moon" id="theme-icon"></i>
             </button>
             <button id="add-btn" class="icon-btn" title="Video Ekle">
                 <i class="fa-solid fa-plus"></i>
@@ -432,7 +427,13 @@
     <script>
         /* --- VERİ YÖNETİMİ VE DEĞİŞKENLER --- */
         let videos = JSON.parse(localStorage.getItem('ogy_videos')) || [];
-        let isDarkMode = localStorage.getItem('ogy_theme') === 'dark';
+        
+        // GÜNCELLEME: Varsayılan olarak KOYU tema.
+        // Eğer daha önce kaydedilmiş bir tercih yoksa (null), 'true' (koyu) olsun.
+        // Eğer kayıt varsa 'dark' mı diye baksın.
+        const storedTheme = localStorage.getItem('ogy_theme');
+        let isDarkMode = storedTheme ? (storedTheme === 'dark') : true;
+
         let currentEditId = null;
 
         /* --- ELEMENT SEÇİMLERİ --- */
@@ -459,10 +460,10 @@
         function applyTheme() {
             if (isDarkMode) {
                 document.body.setAttribute('data-theme', 'dark');
-                themeIcon.className = 'fa-solid fa-moon'; // Koyu modda iken Ay ikonu
+                themeIcon.className = 'fa-solid fa-moon'; // Koyu modda Ay ikonu
             } else {
                 document.body.removeAttribute('data-theme');
-                themeIcon.className = 'fa-solid fa-sun'; // Açık modda iken Güneş ikonu
+                themeIcon.className = 'fa-solid fa-sun'; // Açık modda Güneş ikonu
             }
             localStorage.setItem('ogy_theme', isDarkMode ? 'dark' : 'light');
         }
@@ -588,7 +589,6 @@
             }
 
             try {
-                // Not: LocalStorage limiti nedeniyle büyük dosyalarda hata verebilir.
                 const base64Video = await toBase64(file);
                 
                 const newVideo = {
@@ -614,7 +614,7 @@
             modalTitle.textContent = "Video Ekle";
             nameInput.value = '';
             fileInput.value = '';
-            fileGroup.style.display = 'block'; // Dosya yükleme alanı görünür
+            fileGroup.style.display = 'block'; 
         }
 
         function closeModal() {
@@ -627,10 +627,8 @@
                 currentEditId = id;
                 modalTitle.textContent = "Video Düzenle";
                 nameInput.value = video.name;
-                // Düzenlerken dosya yüklemek opsiyoneldir, ama alan orada kalabilir
                 fileInput.value = ''; 
                 formModal.style.display = 'flex';
-                // Menüyü kapat
                 document.getElementById(`menu-${id}`).classList.remove('show');
             }
         }
@@ -638,12 +636,9 @@
         addBtn.addEventListener('click', openModal);
         closeModalBtn.addEventListener('click', closeModal);
 
-        // Modal dışına tıklayınca kapatma
         window.addEventListener('click', (e) => {
             if (e.target === formModal) closeModal();
             if (e.target === playerModal) closePlayer();
-            
-            // Açık menüleri kapat (Menü butonu dışında bir yere basıldıysa)
             if (!e.target.closest('.card-menu-btn')) {
                 document.querySelectorAll('.card-menu-options').forEach(el => el.classList.remove('show'));
             }
@@ -651,12 +646,10 @@
 
         /* --- KART MENÜ İŞLEMLERİ --- */
         function toggleMenu(event, id) {
-            event.stopPropagation(); // Card click'i tetiklemesin
-            // Diğer açık menüleri kapat
+            event.stopPropagation();
             document.querySelectorAll('.card-menu-options').forEach(el => {
                 if (el.id !== `menu-${id}`) el.classList.remove('show');
             });
-            
             const menu = document.getElementById(`menu-${id}`);
             menu.classList.toggle('show');
         }
@@ -690,12 +683,10 @@
         });
 
         /* --- FLOATING BUTTONS --- */
-        // Yukarı Çık
         btnUp.addEventListener('click', () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
-        // Rastgele Video
         btnRandom.addEventListener('click', () => {
             if (videos.length === 0) {
                 alert("Henüz hiç video yok!");
