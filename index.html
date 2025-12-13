@@ -1,358 +1,714 @@
 <!DOCTYPE html>
-<html lang='tr'>
+<html lang="tr">
 <head>
-<meta charset='UTF-8'>
-<title>OGY MEME ARCHIVE</title>
-<meta name='viewport' content='width=device-width, initial-scale=1.0'>
-<link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OGY MEME VIDEO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- CSS DEĞİŞKENLERİ (TEMALAR) --- */
+        :root {
+            /* Varsayılan (Açık Tema) */
+            --bg-color: #f4f4f4;
+            --bg-secondary: #ffffff;
+            --text-color: #333333;
+            --accent-color: #ff8c00; /* Turuncu tonları */
+            --accent-hover: #e07b00;
+            --border-color: #ddd;
+            --card-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            --scrollbar-bg: #e0e0e0;
+            --scrollbar-thumb: #ff8c00;
+        }
 
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Ubuntu',sans-serif;}
-body{
-  --bg:#0d1117;--text:#e4ffff;--card:#18222d;--primary:#07c2bd;--title:#0ac9c4;--scroll:#07c2bd;
-  background:var(--bg);color:var(--text);transition:.3s;
-}
-body.light{
-  --bg:#fff3e0;--text:#332920;--card:#ffe0b8;--primary:#ff8a1a;--title:#c45d00;--scroll:#ff8a1a;
-}
+        [data-theme="dark"] {
+            /* Koyu Tema */
+            --bg-color: #121212;
+            --bg-secondary: #1e1e1e;
+            --text-color: #f0f0f0;
+            --accent-color: #40E0D0; /* Turkuaz tonları */
+            --accent-hover: #36c2b3;
+            --border-color: #333;
+            --card-shadow: 0 4px 6px rgba(0,0,0,0.5);
+            --scrollbar-bg: #2c2c2c;
+            --scrollbar-thumb: #40E0D0;
+        }
 
-/* Login */
-#loginScreen{position:fixed;inset:0;background:#000a;display:flex;justify-content:center;align-items:center;z-index:9999;}
-.login-box{background:var(--card);padding:30px;width:330px;border-radius:12px;text-align:center;border:2px solid var(--primary);}
-.login-box h2{color:var(--title);margin-bottom:15px;font-size:24px;font-weight:bold;text-shadow:0 0 8px #000;}
-.login-box input{width:100%;padding:12px;margin-top:10px;border:1px solid #555;border-radius:6px;background:#fff;}
-.login-box button{width:100%;padding:12px;border:none;background:var(--primary);color:white;font-weight:bold;border-radius:8px;margin-top:15px;font-size:16px;cursor:pointer;}
-#loginError{color:#ff4444;margin-top:8px;min-height:18px;}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
 
-/* Navbar */
-.navbar{width:100%;padding:15px 25px;background:var(--card);display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid var(--primary);position:sticky;top:0;z-index:50;}
-.logo{font-size:22px;font-weight:bold;color:var(--title);}
-.nav-icons{display:flex;gap:15px;}
-.icon{
-  width:40px;height:40px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:22px;cursor:pointer;
-  background:var(--primary);color:white;
-  transition:.3s;box-shadow:0 0 6px #0006;
-}
-.icon:hover{transform:scale(1.1);}
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-y: scroll;
+        }
 
-/* Grid */
-#videoGrid{
-  width:90%;
-  margin:0 auto;
-  padding:20px;
-  display:grid;
-  grid-template-columns:repeat(auto-fill, 200px);
-  justify-content:center;
-  gap:10px;
-}
+        /* --- SCROLLBAR --- */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--scrollbar-bg); 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb); 
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-hover); 
+        }
 
-/* Card 200x350 */
-.card{
-  width:200px;
-  height:350px;
-  background:var(--card);
-  border-radius:10px;
-  overflow:hidden;
-  position:relative;
-  cursor:pointer;
-  box-shadow:0 0 8px #0004;
-  display:flex;
-  flex-direction:column;
-}
-.card-img-wrap{
-  width:100%;
-  height:300px;
-  overflow:hidden;
-}
-.card-img-wrap img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-.card-title{
-  flex:1;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:4px 6px;
-  font-size:14px;
-  text-align:center;
-  word-break:break-word;
-  white-space:normal;
-}
+        /* --- HEADER --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: var(--bg-secondary);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
 
-/* Menu */
-.menu-btn{
-  position:absolute;top:5px;right:5px;
-  background:#000a;color:white;border:none;
-  padding:3px 7px;border-radius:4px;cursor:pointer;z-index:10;
-}
-.menu-box{
-  display:none;position:absolute;top:30px;right:5px;
-  background:white;color:black;width:120px;
-  border-radius:6px;box-shadow:0 0 10px #0008;z-index:20;
-}
-.menu-box button{
-  background:none;border:none;width:100%;padding:8px;cursor:pointer;text-align:left;font-size:14px;
-}
-.menu-box button:hover{background:#eee;}
+        .site-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            letter-spacing: 1px;
+        }
 
-/* Popups */
-#addPopup,#playPopup{display:none;position:fixed;inset:0;background:#0009;justify-content:center;align-items:center;z-index:9998;}
-.popup{background:var(--card);padding:20px;border-radius:10px;width:330px;border:2px solid var(--primary);}
-.popup input{width:100%;padding:10px;margin:8px 0;border-radius:6px;border:1px solid #444;background:white;}
-.popup button{width:100%;padding:12px;background:var(--primary);color:white;border:none;border-radius:6px;font-weight:bold;margin-top:10px;cursor:pointer;}
-#playArea video{width:100%;border-radius:10px;}
+        /* Arama Kutusu */
+        .search-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            margin: 0 20px;
+        }
 
-/* Scroll top */
-#topBtn{position:fixed;right:20px;bottom:20px;width:45px;height:45px;background:var(--primary);border-radius:50%;color:white;font-size:20px;display:none;align-items:center;justify-content:center;cursor:pointer;}
-</style>
+        .search-input {
+            width: 50%;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 2px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .search-input:focus {
+            border-color: var(--accent-color);
+        }
+
+        /* Sağ Butonlar */
+        .header-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.2s, color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .icon-btn:hover {
+            background-color: rgba(128, 128, 128, 0.1);
+            color: var(--accent-color);
+        }
+
+        /* Tema Butonu Animasyonu */
+        #theme-btn i {
+            transition: transform 0.5s ease;
+        }
+        
+        /* --- MAIN GRID --- */
+        main {
+            flex: 1;
+            padding: 20px;
+        }
+
+        #video-grid {
+            display: grid;
+            /* İstenilen: Tam 8 adet yan yana */
+            grid-template-columns: repeat(8, 1fr);
+            gap: 15px;
+        }
+
+        /* Kart Yapısı */
+        .video-card {
+            background-color: var(--bg-secondary);
+            border-radius: 8%; /* İstenilen ovallik */
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            aspect-ratio: 9/12; /* Kart oranı */
+            transition: transform 0.2s;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-thumb {
+            width: 100%;
+            height: 75%;
+            object-fit: cover;
+            background-color: #000;
+            cursor: pointer;
+        }
+
+        .card-info {
+            height: 25%;
+            padding: 5px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-color);
+            word-break: break-word;
+        }
+
+        /* Kart Menüsü (3 Nokta) */
+        .card-menu-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            color: white;
+            background-color: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            font-size: 0.8rem;
+            z-index: 10;
+        }
+
+        .card-menu-options {
+            position: absolute;
+            top: 30px;
+            right: 5px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            display: none;
+            flex-direction: column;
+            z-index: 11;
+            width: 100px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .card-menu-options.show {
+            display: flex;
+        }
+
+        .menu-option {
+            padding: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: var(--text-color);
+            text-align: left;
+        }
+
+        .menu-option:hover {
+            background-color: var(--accent-color);
+            color: #fff;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            padding: 20px;
+            text-align: center;
+            background-color: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            font-weight: bold;
+        }
+
+        /* --- FLOATING BUTTONS --- */
+        .float-btn {
+            position: fixed;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 90;
+        }
+
+        .float-btn:hover {
+            background-color: var(--accent-hover);
+            transform: scale(1.1);
+        }
+
+        #btn-up { bottom: 20px; right: 20px; }
+        #btn-random { bottom: 20px; left: 20px; }
+
+        /* --- MODAL (POPUP) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+
+        .modal-content {
+            background-color: var(--bg-secondary);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .modal-header {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-cancel { background-color: #ccc; color: #333; }
+        .btn-save { background-color: var(--accent-color); color: white; }
+
+        /* Video Oynatma Modalı (Tam ekran gibi) */
+        #player-modal .modal-content {
+            max-width: 800px;
+            background-color: #000;
+        }
+        #video-player {
+            width: 100%;
+            max-height: 70vh;
+        }
+
+        /* --- RESPONSIVE --- */
+        /* Ekran küçüldüğünde 8 sütun çok sıkışık olacağından scroll edilebilir yapabiliriz 
+           veya promptun kesinliği için min-width vererek yatay scroll oluştururuz. 
+           Ancak kullanıcı deneyimi için çok küçük ekranlarda sütun sayısını düşürmek daha iyidir.
+           Ama talep "En az ve en fazla 8 adet" olduğu için grid'i zorlayacağız. */
+        
+        @media (max-width: 1200px) {
+             /* Mobilde 8 sütun okunmaz, bu yüzden fontları küçültüyoruz */
+            .card-info { font-size: 0.7rem; }
+            .card-menu-btn { width: 20px; height: 20px; font-size: 0.6rem; }
+        }
+    </style>
 </head>
+<body>
 
-<body class="dark">
+    <header>
+        <div class="site-name">OGY MEME VIDEO</div>
+        
+        <div class="search-container">
+            <input type="text" id="search-input" class="search-input" placeholder="Video ara...">
+        </div>
 
-<div id="loginScreen">
-  <div class="login-box">
-    <h2>OGY MEME ARCHIVE</h2>
-    <input id="logUser" placeholder="Kullanıcı adı">
-    <input id="logPass" type="password" placeholder="Şifre">
-    <button onclick="attemptLogin()">Giriş Yap</button>
-    <p id="loginError"></p>
-  </div>
-</div>
+        <div class="header-buttons">
+            <button id="theme-btn" class="icon-btn" title="Tema Değiştir">
+                <i class="fa-solid fa-sun" id="theme-icon"></i>
+            </button>
+            <button id="add-btn" class="icon-btn" title="Video Ekle">
+                <i class="fa-solid fa-plus"></i>
+            </button>
+        </div>
+    </header>
 
-<div class="navbar">
-  <div class="logo">OGY MEME ARCHIVE</div>
-  <div class="nav-icons">
-    <div class="icon" id="themeIcon" onclick="toggleTheme()">🌙</div>
-    <div class="icon" onclick="openAddPopup()">+</div>
-  </div>
-</div>
+    <main>
+        <div id="video-grid">
+            </div>
+    </main>
 
-<div id="videoGrid"></div>
+    <footer>
+        <span id="video-count">Toplam Video: 0</span>
+    </footer>
 
-<div id="topBtn" onclick="scrollToTop()">⬆</div>
+    <button id="btn-random" class="float-btn" title="Rastgele Video">
+        <i class="fa-solid fa-shuffle"></i>
+    </button>
+    <button id="btn-up" class="float-btn" title="Yukarı Çık">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
 
-<div id="addPopup">
-  <div class="popup">
-    <h3>Video Ekle</h3>
-    <input id="videoName" placeholder="Video adı">
-    <input id="videoFile" type="file" accept="video/*">
-    <button onclick="saveVideo()">Kaydet</button>
-    <button style="background:#c33" onclick="closeAddPopup()">Kapat</button>
-  </div>
-</div>
+    <div id="form-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="modal-title" class="modal-header">Video Ekle</h3>
+            <div class="form-group">
+                <label>Video Adı:</label>
+                <input type="text" id="video-name-input" placeholder="Meme adı giriniz...">
+            </div>
+            <div class="form-group" id="file-group">
+                <label>Video Dosyası:</label>
+                <input type="file" id="video-file-input" accept="video/*">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" id="close-modal-btn">İptal</button>
+                <button class="btn btn-save" id="save-video-btn">Kaydet</button>
+            </div>
+        </div>
+    </div>
 
-<div id="playPopup">
-  <div class="popup" id="playArea"></div>
-</div>
+    <div id="player-modal" class="modal-overlay">
+        <div class="modal-content" style="text-align: center; position:relative;">
+            <button onclick="closePlayer()" style="position: absolute; top: -10px; right: -10px; border-radius: 50%; width: 30px; height: 30px; border:none; background:white; cursor:pointer;">X</button>
+            <video id="video-player" controls autoplay></video>
+            <h3 id="playing-title" style="color: white; margin-top: 10px;"></h3>
+        </div>
+    </div>
 
-<script>
-const loginScreen = document.getElementById("loginScreen");
-const logUser = document.getElementById("logUser");
-const logPass = document.getElementById("logPass");
-const loginError = document.getElementById("loginError");
-const videoGrid = document.getElementById("videoGrid");
-const addPopup = document.getElementById("addPopup");
-const playPopup = document.getElementById("playPopup");
-const playArea = document.getElementById("playArea");
-const videoName = document.getElementById("videoName");
-const videoFile = document.getElementById("videoFile");
-const topBtn = document.getElementById("topBtn");
-const themeIcon = document.getElementById("themeIcon");
+    <script>
+        /* --- VERİ YÖNETİMİ VE DEĞİŞKENLER --- */
+        let videos = JSON.parse(localStorage.getItem('ogy_videos')) || [];
+        let isDarkMode = localStorage.getItem('ogy_theme') === 'dark';
+        let currentEditId = null;
 
-let db;
-let currentPlayingId = null;
+        /* --- ELEMENT SEÇİMLERİ --- */
+        const themeBtn = document.getElementById('theme-btn');
+        const themeIcon = document.getElementById('theme-icon');
+        const grid = document.getElementById('video-grid');
+        const searchInput = document.getElementById('search-input');
+        const videoCountEl = document.getElementById('video-count');
+        const addBtn = document.getElementById('add-btn');
+        const formModal = document.getElementById('form-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const saveVideoBtn = document.getElementById('save-video-btn');
+        const nameInput = document.getElementById('video-name-input');
+        const fileInput = document.getElementById('video-file-input');
+        const modalTitle = document.getElementById('modal-title');
+        const fileGroup = document.getElementById('file-group');
+        const btnUp = document.getElementById('btn-up');
+        const btnRandom = document.getElementById('btn-random');
+        const playerModal = document.getElementById('player-modal');
+        const videoPlayer = document.getElementById('video-player');
+        const playingTitle = document.getElementById('playing-title');
 
-document.addEventListener("DOMContentLoaded",()=>{
-  if(localStorage.getItem("logged")==="true") loginScreen.style.display="none";
-});
+        /* --- TEMA YÖNETİMİ --- */
+        function applyTheme() {
+            if (isDarkMode) {
+                document.body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'fa-solid fa-moon'; // Koyu modda iken Ay ikonu
+            } else {
+                document.body.removeAttribute('data-theme');
+                themeIcon.className = 'fa-solid fa-sun'; // Açık modda iken Güneş ikonu
+            }
+            localStorage.setItem('ogy_theme', isDarkMode ? 'dark' : 'light');
+        }
 
-function attemptLogin(){
-  const u = logUser.value.trim();
-  const p = logPass.value.trim();
-  if(u==="ogy" && p==="1881"){
-    localStorage.setItem("logged","true");
-    loginScreen.style.display="none";
-  }else{
-    loginError.textContent="Hatalı giriş!";
-  }
-}
+        // Başlangıç temasını uygula
+        applyTheme();
 
-function toggleTheme(){
-  document.body.classList.toggle("light");
-  document.body.classList.toggle("dark");
-  themeIcon.textContent = document.body.classList.contains("light") ? "☀️" : "🌙";
-}
+        // Tema butonuna tıklama
+        themeBtn.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            applyTheme();
+        });
 
-function openAddPopup(){addPopup.style.display="flex";}
-function closeAddPopup(){addPopup.style.display="none";videoName.value="";videoFile.value="";}
+        // Tema butonu hover animasyonu
+        themeBtn.addEventListener('mouseenter', () => {
+            // Güneş (Açık mod) ise -> üzerine gelince Ay olsun
+            if (!isDarkMode) {
+                themeIcon.className = 'fa-solid fa-moon';
+                themeIcon.style.transform = 'rotate(360deg)';
+            } 
+            // Ay (Koyu mod) ise -> üzerine gelince Güneş olsun
+            else {
+                themeIcon.className = 'fa-solid fa-sun';
+                themeIcon.style.transform = 'rotate(360deg)';
+            }
+        });
 
-function scrollToTop(){window.scrollTo({top:0,behavior:"smooth"});}
-window.addEventListener("scroll",()=>{topBtn.style.display=window.scrollY>200?"flex":"none";});
+        themeBtn.addEventListener('mouseleave', () => {
+            themeIcon.style.transform = 'rotate(0deg)';
+            // Mouse gidince mevcut duruma geri dön
+            if (!isDarkMode) {
+                themeIcon.className = 'fa-solid fa-sun';
+            } else {
+                themeIcon.className = 'fa-solid fa-moon';
+            }
+        });
 
-// ESC ile video popup kapatma
-document.addEventListener("keydown", (e)=>{
-  if(e.key === "Escape" && playPopup.style.display === "flex"){
-    closePlay();
-  }
-});
+        /* --- VİDEO İŞLEMLERİ --- */
 
-let req = indexedDB.open("OGY_Meme_DB",7);
-req.onupgradeneeded = e=>{
-  db = e.target.result;
-  if(!db.objectStoreNames.contains("videos")){
-    db.createObjectStore("videos",{keyPath:"id",autoIncrement:true});
-  }
-};
-req.onsuccess = e=>{
-  db = e.target.result;
-  loadVideos();
-};
+        // Listeyi Render Etme
+        function renderVideos(filterText = '') {
+            grid.innerHTML = '';
+            
+            // Alfabetik Sıralama
+            const sortedVideos = videos.sort((a, b) => a.name.localeCompare(b.name, 'tr', { sensitivity: 'base' }));
+            
+            // Filtreleme
+            const filteredVideos = sortedVideos.filter(v => v.name.toLowerCase().includes(filterText.toLowerCase()));
 
-function generateThumb(file, cb){
-  const v=document.createElement("video");
-  v.preload="metadata";
-  v.muted=true;
-  v.src=URL.createObjectURL(file);
-  v.onloadedmetadata=()=>{
-    const targetTime = Math.min(0.5, (v.duration||1)/2);
-    v.currentTime = targetTime;
-  };
-  v.onseeked=()=>{
-    const c=document.createElement("canvas");
-    c.width=200;c.height=300;
-    const ctx=c.getContext("2d");
-    ctx.drawImage(v,0,0,c.width,c.height);
-    const dataURL=c.toDataURL("image/jpeg",0.8);
-    URL.revokeObjectURL(v.src);
-    cb(dataURL);
-  };
-}
+            filteredVideos.forEach(video => {
+                const card = document.createElement('div');
+                card.className = 'video-card';
+                card.innerHTML = `
+                    <button class="card-menu-btn" onclick="toggleMenu(event, '${video.id}')">
+                        <i class="fa-solid fa-ellipsis"></i>
+                    </button>
+                    <div class="card-menu-options" id="menu-${video.id}">
+                        <div class="menu-option" onclick="openEditModal('${video.id}')">Düzenle</div>
+                        <div class="menu-option" onclick="deleteVideo('${video.id}')">Sil</div>
+                    </div>
+                    <video class="card-thumb" src="${video.src}#t=1.0" preload="metadata" onclick="playVideo('${video.id}')" muted></video>
+                    <div class="card-info">${video.name}</div>
+                `;
+                grid.appendChild(card);
+            });
 
-function saveVideo(){
-  const name=videoName.value.trim();
-  const file=videoFile.files[0];
-  if(!name||!file) return;
+            videoCountEl.textContent = `Toplam Video: ${filteredVideos.length}`;
+        }
 
-  generateThumb(file, thumb=>{
-    const fr=new FileReader();
-    fr.onload=()=>{
-      const data={title:name,video:fr.result,thumb:thumb};
-      const tx=db.transaction("videos","readwrite");
-      tx.objectStore("videos").add(data).onsuccess=()=>{
-        closeAddPopup();
-        loadVideos();
-      };
-    };
-    fr.readAsDataURL(file);
-  });
-}
+        // LocalStorage'a Kaydet
+        function saveToStorage() {
+            try {
+                localStorage.setItem('ogy_videos', JSON.stringify(videos));
+                renderVideos(searchInput.value);
+            } catch (e) {
+                alert("Hata: Tarayıcı depolama alanı doldu! Daha küçük videolar yükleyin veya bazılarını silin.");
+            }
+        }
 
-function loadVideos(){
-  const tx=db.transaction("videos","readonly");
-  const store=tx.objectStore("videos");
-  const arr=[];
-  store.openCursor().onsuccess=e=>{
-    const c=e.target.result;
-    if(c){arr.push(c.value);c.continue();}
-    else{
-      arr.sort((a,b)=>a.title.localeCompare(b.title));
-      renderVideos(arr);
-    }
-  };
-}
+        // Dosyayı Base64'e çevir
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
 
-function renderVideos(list){
-  videoGrid.innerHTML="";
-  list.forEach(v=>{
-    const card=document.createElement("div");
-    card.className="card";
-    card.innerHTML = `
-      <button class="menu-btn">⋮</button>
-      <div class="menu-box">
-        <button class="edit-btn">Düzenle</button>
-        <button class="del-btn">Sil</button>
-      </div>
-      <div class="card-img-wrap">
-        <img src="${v.thumb}" alt="">
-      </div>
-      <div class="card-title">${v.title}</div>
-    `;
+        // Video Ekleme / Kaydetme Butonu
+        saveVideoBtn.addEventListener('click', async () => {
+            const name = nameInput.value.trim();
+            const file = fileInput.files[0];
 
-    const menuBtn = card.querySelector(".menu-btn");
-    const menuBox = card.querySelector(".menu-box");
-    const editBtn = card.querySelector(".edit-btn");
-    const delBtn = card.querySelector(".del-btn");
+            if (!name) {
+                alert("Lütfen bir isim giriniz.");
+                return;
+            }
 
-    menuBtn.addEventListener("click",(ev)=>{
-      ev.stopPropagation();
-      menuBox.style.display = menuBox.style.display==="block"?"none":"block";
-    });
+            // Düzenleme Modu
+            if (currentEditId) {
+                const videoIndex = videos.findIndex(v => v.id === currentEditId);
+                if (videoIndex > -1) {
+                    videos[videoIndex].name = name;
+                    // Eğer yeni dosya seçildiyse güncelle
+                    if (file) {
+                        try {
+                            const base64Video = await toBase64(file);
+                            videos[videoIndex].src = base64Video;
+                        } catch (e) {
+                            alert("Video işlenirken hata oluştu.");
+                            return;
+                        }
+                    }
+                    saveToStorage();
+                    closeModal();
+                }
+                return;
+            }
 
-    editBtn.addEventListener("click",(ev)=>{
-      ev.stopPropagation();
-      editVideo(v.id);
-    });
+            // Yeni Ekleme Modu
+            if (!file) {
+                alert("Lütfen bir video dosyası seçiniz.");
+                return;
+            }
 
-    delBtn.addEventListener("click",(ev)=>{
-      ev.stopPropagation();
-      deleteVideo(v.id);
-    });
+            try {
+                // Not: LocalStorage limiti nedeniyle büyük dosyalarda hata verebilir.
+                const base64Video = await toBase64(file);
+                
+                const newVideo = {
+                    id: Date.now().toString(),
+                    name: name,
+                    src: base64Video
+                };
 
-    card.addEventListener("click",()=>{
-      openVideo(v.id);
-    });
+                videos.push(newVideo);
+                saveToStorage();
+                closeModal();
 
-    videoGrid.appendChild(card);
-  });
-}
+            } catch (error) {
+                console.error(error);
+                alert("Video yüklenirken bir hata oluştu. Dosya boyutu çok büyük olabilir.");
+            }
+        });
 
-function deleteVideo(id){
-  const tx=db.transaction("videos","readwrite");
-  tx.objectStore("videos").delete(id).onsuccess=()=>{
-    if(currentPlayingId===id){
-      closePlay();
-    }
-    loadVideos();
-  };
-}
+        /* --- MODAL YÖNETİMİ --- */
+        function openModal() {
+            formModal.style.display = 'flex';
+            currentEditId = null;
+            modalTitle.textContent = "Video Ekle";
+            nameInput.value = '';
+            fileInput.value = '';
+            fileGroup.style.display = 'block'; // Dosya yükleme alanı görünür
+        }
 
-function editVideo(id){
-  const nn = prompt("Yeni ad:");
-  if(!nn) return;
-  const tx=db.transaction("videos","readwrite");
-  const s=tx.objectStore("videos");
-  s.get(id).onsuccess=e=>{
-    const d=e.target.result;
-    if(!d) return;
-    d.title=nn;
-    s.put(d).onsuccess=()=>loadVideos();
-  };
-}
+        function closeModal() {
+            formModal.style.display = 'none';
+        }
 
-function openVideo(id){
-  const tx=db.transaction("videos","readonly");
-  tx.objectStore("videos").get(id).onsuccess=e=>{
-    const v=e.target.result;
-    if(!v) return; // silindiyse açma
-    currentPlayingId=id;
-    playArea.innerHTML = `
-      <video controls autoplay src="${v.video}"></video>
-      <button style="margin-top:10px;background:#c33" onclick="closePlay()">Kapat</button>
-    `;
-    playPopup.style.display="flex";
-  };
-}
+        function openEditModal(id) {
+            const video = videos.find(v => v.id === id);
+            if (video) {
+                currentEditId = id;
+                modalTitle.textContent = "Video Düzenle";
+                nameInput.value = video.name;
+                // Düzenlerken dosya yüklemek opsiyoneldir, ama alan orada kalabilir
+                fileInput.value = ''; 
+                formModal.style.display = 'flex';
+                // Menüyü kapat
+                document.getElementById(`menu-${id}`).classList.remove('show');
+            }
+        }
 
-function closePlay(){
-  playPopup.style.display="none";
-  playArea.innerHTML="";
-  currentPlayingId=null;
-}
-</script>
+        addBtn.addEventListener('click', openModal);
+        closeModalBtn.addEventListener('click', closeModal);
 
+        // Modal dışına tıklayınca kapatma
+        window.addEventListener('click', (e) => {
+            if (e.target === formModal) closeModal();
+            if (e.target === playerModal) closePlayer();
+            
+            // Açık menüleri kapat (Menü butonu dışında bir yere basıldıysa)
+            if (!e.target.closest('.card-menu-btn')) {
+                document.querySelectorAll('.card-menu-options').forEach(el => el.classList.remove('show'));
+            }
+        });
+
+        /* --- KART MENÜ İŞLEMLERİ --- */
+        function toggleMenu(event, id) {
+            event.stopPropagation(); // Card click'i tetiklemesin
+            // Diğer açık menüleri kapat
+            document.querySelectorAll('.card-menu-options').forEach(el => {
+                if (el.id !== `menu-${id}`) el.classList.remove('show');
+            });
+            
+            const menu = document.getElementById(`menu-${id}`);
+            menu.classList.toggle('show');
+        }
+
+        function deleteVideo(id) {
+            if (confirm("Bu videoyu silmek istediğinize emin misiniz?")) {
+                videos = videos.filter(v => v.id !== id);
+                saveToStorage();
+            }
+        }
+
+        /* --- VİDEO OYNATMA --- */
+        function playVideo(id) {
+            const video = videos.find(v => v.id === id);
+            if (video) {
+                videoPlayer.src = video.src;
+                playingTitle.textContent = video.name;
+                playerModal.style.display = 'flex';
+            }
+        }
+
+        function closePlayer() {
+            playerModal.style.display = 'none';
+            videoPlayer.pause();
+            videoPlayer.src = "";
+        }
+
+        /* --- SEARCH --- */
+        searchInput.addEventListener('input', (e) => {
+            renderVideos(e.target.value);
+        });
+
+        /* --- FLOATING BUTTONS --- */
+        // Yukarı Çık
+        btnUp.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Rastgele Video
+        btnRandom.addEventListener('click', () => {
+            if (videos.length === 0) {
+                alert("Henüz hiç video yok!");
+                return;
+            }
+            const randomIndex = Math.floor(Math.random() * videos.length);
+            const randomVideo = videos[randomIndex];
+            playVideo(randomVideo.id);
+        });
+
+        /* --- BAŞLANGIÇ --- */
+        renderVideos();
+
+    </script>
 </body>
 </html>
